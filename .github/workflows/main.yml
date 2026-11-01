@@ -1,0 +1,32 @@
+- name: Extract Android project
+        shell: bash
+        run: |
+          set -e
+          echo "=== File di repository ==="
+          ls -lah
+
+          mkdir -p extracted
+
+          ZIP_FILE="$(find . -maxdepth 1 -type f -iname '*.zip' | head -n 1)"
+
+          if [ -z "$ZIP_FILE" ]; then
+            echo "::error::Tidak ditemukan file ZIP di folder utama repository."
+            exit 1
+          fi
+
+          echo "ZIP ditemukan: $ZIP_FILE"
+          unzip -t "$ZIP_FILE"
+          unzip -o "$ZIP_FILE" -d extracted
+
+          echo "=== Mencari file konfigurasi Gradle ==="
+          SETTINGS_FILE="$(find extracted -type f \( -name settings.gradle -o -name settings.gradle.kts \) | head -n 1)"
+
+          if [ -z "$SETTINGS_FILE" ]; then
+            echo "::error::ZIP berhasil dibuka, tetapi settings.gradle atau settings.gradle.kts tidak ditemukan."
+            find extracted -maxdepth 4 -type f | head -n 80
+            exit 1
+          fi
+
+          PROJECT_DIR="$(dirname "$SETTINGS_FILE")"
+          echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
+          echo "Proyek ditemukan di: $PROJECT_DIR"
