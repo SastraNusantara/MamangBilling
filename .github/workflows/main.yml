@@ -31,10 +31,9 @@ jobs:
         with:
           packages: platform-tools
 
-      - name: Install Android SDK components
+            - name: Install Android SDK components
         shell: bash
         run: |
-          yes | sdkmanager --licenses
           sdkmanager "platforms;android-35" "build-tools;35.0.0"
 
 
